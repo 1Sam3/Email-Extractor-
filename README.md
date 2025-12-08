@@ -15,6 +15,7 @@ A powerful and modern tool for advanced **phishing email analysis**, IOC extract
 * 💾 Output to **console** and **JSON**
 * 🎨 Colorized terminal output
 * 🔄 Supports multiple files at once
+* 🖱 Interactive mode for step-by-step processing (`--interactive`)
 
 ---
 
@@ -66,6 +67,14 @@ python3 ee.py <email.eml> --json
 python3 ee.py email1.eml email2.eml --json
 ```
 
+### Interactive Mode
+
+Run step-by-step interactive processing for emails:
+
+```bash
+python3 ee.py --interactive
+```
+
 ### View JSON results
 
 ```bash
@@ -75,7 +84,7 @@ cat output.json
 ### Use VirusTotal + AbuseIPDB (async enrichment)
 
 ```bash
-python3 ee.py email.eml --vt-key YOUR_VT_KEY --abuse-key YOUR_ABUSE_KEY --json
+python3 ee.py sample.eml --vt-key YOUR_VT_KEY --abuse-key YOUR_ABUSE_KEY --json
 ```
 
 ---
@@ -145,6 +154,12 @@ Verbose mode:
 
 ```bash
 python3 ee.py email.eml -v
+```
+
+Interactive mode:
+
+```bash
+python3 ee.py --interactive
 ```
 
 ---
