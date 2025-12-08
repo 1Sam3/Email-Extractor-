@@ -10,17 +10,24 @@ Python tool to extract Indicators of Compromise (IOCs) from email (.eml) files.
 - Supports HTML and multiple encodings
 - Outputs to console and JSON
 
-## Usage
+## Installation
 if the error "error: externally-managed-environment" appears
-
 python3 -m pip install --break-system-packages -r requirements.txt
 
 ```bash
+git clone https://github.com/1Sam3/Email-Extractor-.git
+
 cd Email-Extractor-
 
 pip3 install -r requirements.txt
+```
+## Usage
+
+```bash
 
 python3 ee.py <path+file> --json
 
-cat output.json 
+python3 ee.py <path+file1> <path+file2> --json
 
+cat output.json 
+```
