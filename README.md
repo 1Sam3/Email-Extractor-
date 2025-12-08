@@ -78,7 +78,9 @@ python3 ee.py --interactive
 ### View JSON results
 
 ```bash
-cat output.json
+cd output_reports
+
+cat output_email.eml.json
 ```
 
 ### Use VirusTotal + AbuseIPDB (async enrichment)
