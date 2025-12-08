@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import re
 import sys
 import hashlib
@@ -13,7 +12,7 @@ import chardet
 import tldextract
 from tabulate import tabulate
 
-# Defang helpers
+
 def defang_ip(ip):
     return ip.replace('.', '[.]')
 
@@ -22,7 +21,7 @@ def defang_url(url):
     url = url.replace('.', '[.]')
     return url
 
-# Hash file
+
 def file_hashes(data):
     return {
         'md5': hashlib.md5(data).hexdigest(),
@@ -99,11 +98,11 @@ def extract_iocs(email_message):
                     **file_hashes(data)
                 })
 
-    # Extract IPs from headers
+    
     for header_value in email_message.values():
         ips.update(re.findall(r'\b(?:\d{1,3}\.){3}\d{1,3}\b', header_value))
 
-    # Validate IPs
+    
     valid_ips = []
     for ip in ips:
         try:
@@ -118,83 +117,92 @@ def extract_headers(email_message):
     headers_to_extract = ["Date", "Subject", "To", "From", "Reply-To", "Return-Path", "Message-ID", "X-Originating-IP", "X-Sender-IP", "Authentication-Results"]
     headers = {k: v for k, v in email_message.items() if k in headers_to_extract}
 
-    # Include all Received headers for routing analysis
+   
     received_headers = [v for k, v in email_message.items() if k.lower() == 'received']
     headers['Received'] = received_headers
     return headers
 
 
+
 def main():
-    parser = argparse.ArgumentParser(description='Extract IOCs from EML file')
-    parser.add_argument('file', help='Path to EML file')
-    parser.add_argument('--json', help='Save output to JSON file', action='store_true')
+    parser = argparse.ArgumentParser(description='Extract IOCs from EML file(s)')
+    parser.add_argument('files', nargs='+', help='Path(s) to EML file(s)')
+    parser.add_argument('--json', help='Save output to JSON file(s)', action='store_true')
     args = parser.parse_args()
 
-    email_message = read_file(args.file)
-    ips, urls, attachments = extract_iocs(email_message)
-    headers = extract_headers(email_message)
+    for file_path in args.files:
+        print("\n" + "#" * 80)
+        print(f" Processing file: {file_path} ")
+        print("#" * 80)
 
-    ip_infos = {}
-    for ip in ips:
-        info = ip_lookup(ip)
-        ip_infos[ip] = info
+        email_message = read_file(file_path)
+        ips, urls, attachments = extract_iocs(email_message)
+        headers = extract_headers(email_message)
 
-    # Defang outputs
-    defanged_ips = [defang_ip(ip) for ip in ips]
-    defanged_urls = [defang_url(url) for url in urls]
+        ip_infos = {}
+        for ip in ips:
+            ip_infos[ip] = ip_lookup(ip)
 
-    # Extract domains from URLs
-    url_domains = [{
-        'url': u,
-        'domain': tldextract.extract(u).domain,
-        'subdomain': tldextract.extract(u).subdomain,
-        'suffix': tldextract.extract(u).suffix
-    } for u in urls]
+        defanged_ips = [defang_ip(ip) for ip in ips]
 
-    output = {
-        'IPs': [{'ip': d, 'info': ip_infos[i]} for i, d in zip(ips, defanged_ips)],
-        'URLs': url_domains,
-        'Headers': headers,
-        'Attachments': attachments,
-        'Stats': {
-            'email_size_bytes': len(email_message.as_bytes()),
-            'total_attachments': len(attachments),
-            'unique_urls': len(urls),
-            'unique_ips': len(ips)
+        url_domains = [{
+            'url': u,
+            'domain': tldextract.extract(u).domain,
+            'subdomain': tldextract.extract(u).subdomain,
+            'suffix': tldextract.extract(u).suffix
+        } for u in urls]
+
+        output = {
+            'file_name': file_path,
+            'IPs': [{'ip': d, 'info': ip_infos[i]} for i, d in zip(ips, defanged_ips)],
+            'URLs': url_domains,
+            'Headers': headers,
+            'Attachments': attachments,
+            'Stats': {
+                'email_size_bytes': len(email_message.as_bytes()),
+                'total_attachments': len(attachments),
+                'unique_urls': len(urls),
+                'unique_ips': len(ips)
+            }
         }
-    }
 
-    # Print human-readable output using tabulate
-    print("\nExtracted IP Addresses:\n" + "="*40)
-    ip_table = [[item['ip'], item['info']['City'] if item['info'] else '', item['info']['Region'] if item['info'] else '', item['info']['Country'] if item['info'] else '', item['info']['ISP'] if item['info'] else ''] for item in output['IPs']]
-    print(tabulate(ip_table, headers=['IP', 'City', 'Region', 'Country', 'ISP']))
+       
+        print("\nExtracted IP Addresses:\n" + "="*40)
+        ip_table = [[item['ip'], item['info']['City'] if item['info'] else '',
+                     item['info']['Region'] if item['info'] else '',
+                     item['info']['Country'] if item['info'] else '',
+                     item['info']['ISP'] if item['info'] else ''] for item in output['IPs']]
+        print(tabulate(ip_table, headers=['IP', 'City', 'Region', 'Country', 'ISP']))
 
-    print("\nExtracted URLs:\n" + "="*40)
-    url_table = [[item['url'], item['subdomain'], item['domain'], item['suffix']] for item in output['URLs']]
-    print(tabulate(url_table, headers=['URL', 'Subdomain', 'Domain', 'Suffix']))
+        print("\nExtracted URLs:\n" + "="*40)
+        url_table = [[item['url'], item['subdomain'], item['domain'], item['suffix']] for item in output['URLs']]
+        print(tabulate(url_table, headers=['URL', 'Subdomain', 'Domain', 'Suffix']))
 
-    print("\nExtracted Headers:\n" + "="*40)
-    for k, v in output['Headers'].items():
-        if isinstance(v, list):
-            for line in v:
-                print(f"{k}: {line}")
-        else:
+        print("\nExtracted Headers:\n" + "="*40)
+        for k, v in output['Headers'].items():
+            if isinstance(v, list):
+                for line in v:
+                    print(f"{k}: {line}")
+            else:
+                print(f"{k}: {v}")
+
+        print("\nExtracted Attachments:\n" + "="*40)
+        for att in output['Attachments']:
+            print(f"Filename: {att['filename']}, Type: {att['type']}, Size: {att['size_bytes']} bytes")
+            print(f"MD5: {att['md5']}, SHA1: {att['sha1']}, SHA256: {att['sha256']}\n")
+
+        print("\nEmail Statistics:\n" + "="*40)
+        for k, v in output['Stats'].items():
             print(f"{k}: {v}")
 
-    print("\nExtracted Attachments:\n" + "="*40)
-    for att in output['Attachments']:
-        print(f"Filename: {att['filename']}, Type: {att['type']}, Size: {att['size_bytes']} bytes")
-        print(f"MD5: {att['md5']}, SHA1: {att['sha1']}, SHA256: {att['sha256']}\n")
 
-    print("\nEmail Statistics:\n" + "="*40)
-    for k, v in output['Stats'].items():
-        print(f"{k}: {v}")
+        if args.json:
+            safe_name = file_path.replace('/', '_').replace('\\', '_')
+            json_name = f"output_{safe_name}.json"
+            with open(json_name, 'w') as f:
+                json.dump(output, f, indent=4)
+            print(f"\nSaved JSON → {json_name}")
 
-    # Save to JSON if requested
-    if args.json:
-        with open('output.json', 'w') as f:
-            json.dump(output, f, indent=4)
-        print('Results saved to output.json')
 
 if __name__ == '__main__':
     main()
