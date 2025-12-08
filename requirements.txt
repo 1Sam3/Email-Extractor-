@@ -1,4 +1,16 @@
 requests
-chardet
 tldextract
 tabulate
+chardet
+pdfminer.six
+python-docx
+oletools
+pandas
+tqdm
+colorama
+dnspython
+dkimpy
+pyspf
+beautifulsoup4
+lxml
+aiohttp
