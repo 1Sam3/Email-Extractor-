@@ -1,33 +1,158 @@
-# Email-Extractor
-Email-Extractor is a powerful and efficient tool designed to help cybersecurity professionals, marketers, and researchers quickly gather email addresses from various sources. It ensures accuracy, supports multiple formats, and saves time by automating the extraction process, while maintaining compliance with privacy regulations.
-Python tool to extract Indicators of Compromise (IOCs) from email (.eml) files.
+# Email Extractor Enhanced (EE)
 
-## Features
+A powerful and modern tool for advanced **phishing email analysis**, IOC extraction, geolocation, attachment inspection, and automated security enrichment using external APIs.
 
-- Extracts IP addresses, URLs, headers, attachments
-- Defangs IOCs for safe analysis
-- Geolocates IP addresses
-- Supports HTML and multiple encodings
-- Outputs to console and JSON
+---
 
-## Installation
-if the error "error: externally-managed-environment" appears
-python3 -m pip install --break-system-packages -r requirements.txt
+## ✨ Features
+
+* 📌 Extracts **IP addresses**, **URLs**, **email headers**, **domains**, and **attachments**
+* 🧹 Automatically **defangs** IOCs for safe sharing
+* 🌍 Performs **IP geolocation**, ASN lookup, and DNS resolution
+* 📨 Supports `.eml`, HTML, text, multi-encoding parsing
+* 🧪 Analyzes attachments: PDF, DOCX, OLE, HTML
+* ⚡ Async enrichment via **VirusTotal** + **AbuseIPDB**
+* 💾 Output to **console** and **JSON**
+* 🎨 Colorized terminal output
+* 🔄 Supports multiple files at once
+
+---
+
+## 📦 Installation
+
+### Clone Repository
 
 ```bash
 git clone https://github.com/1Sam3/Email-Extractor-.git
-
 cd Email-Extractor-
-
-pip3 install -r requirements.txt
 ```
-## Usage
+
+### Install Dependencies
+
+#### Normal installation:
 
 ```bash
-
-python3 ee.py <path+file> --json
-
-python3 ee.py <path+file1> <path+file2> --json
-
-cat output.json 
+pip3 install -r requirements.txt
 ```
+
+#### If you see this error:
+
+`error: externally-managed-environment`
+Use:
+
+```bash
+python3 -m pip install --break-system-packages -r requirements.txt
+```
+
+---
+
+## ▶️ Usage
+
+### Basic Scan
+
+```bash
+python3 ee.py <path/to/email.eml>
+```
+
+### Output results to JSON
+
+```bash
+python3 ee.py <email.eml> --json
+```
+
+### Scan multiple files
+
+```bash
+python3 ee.py email1.eml email2.eml --json
+```
+
+### View JSON results
+
+```bash
+cat output.json
+```
+
+### Use VirusTotal + AbuseIPDB (async enrichment)
+
+```bash
+python3 ee.py email.eml --vt-key YOUR_VT_KEY --abuse-key YOUR_ABUSE_KEY --json
+```
+
+---
+
+## 🔑 API Keys (Optional but Recommended)
+
+* **VirusTotal**: for URL/IP/domain reputation
+* **AbuseIPDB**: for IP abuse reports
+
+Provide them via command line:
+
+```bash
+--vt-key <KEY> --abuse-key <KEY>
+```
+
+---
+
+## 📁 File Types Supported
+
+* `.eml`
+* `.txt`
+* `.html`
+* `PDF`, `DOCX`, `OLE` attachments
+
+---
+
+## 🛠 Requirements
+
+Installed automatically via `requirements.txt`:
+
+```
+requests
+aiohttp
+tldextract
+tabulate
+chardet
+pdfminer.six
+python-docx
+oertools
+pandas
+tqdm
+colorama
+dnspython
+dkimpy
+pyspf
+beautifulsoup4
+lxml
+```
+
+---
+
+## 🧩 Example Commands
+
+Extract URLs only:
+
+```bash
+python3 ee.py email.eml --urls
+```
+
+Extract attachments:
+
+```bash
+python3 ee.py email.eml --extract
+```
+
+Verbose mode:
+
+```bash
+python3 ee.py email.eml -v
+```
+
+---
+
+## 📜 License
+
+MIT
+
+---
+
+
