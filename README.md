@@ -1,4 +1,4 @@
-# Email Extractor Enhanced (EE)
+# Email Extractor (EE)
 
 A powerful and modern tool for advanced **phishing email analysis**, IOC extraction, geolocation, attachment inspection, and automated security enrichment using external APIs.
 
